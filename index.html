@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UNIT 6 – ENGLISH CHALLENGE</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Segoe UI",Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#1e3a8a,#5b21b6);display:flex;justify-content:center;align-items:flex-start}
+#app{width:100%;max-width:900px;padding:16px}
+.card{background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.3);border-radius:22px;padding:22px;backdrop-filter:blur(6px);animation:in .4s}
+@keyframes in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(28px,6vw,52px);margin:.2em 0;color:#facc15;text-align:center;text-shadow:0 3px 0 #0006}
+.sub{text-align:center;font-size:clamp(16px,3vw,24px)}
+.big{font-size:90px;text-align:center}
+button{font:inherit;cursor:pointer;border:0;border-radius:16px;padding:14px 26px;font-weight:700;font-size:20px;background:#facc15;color:#1e1b4b;box-shadow:0 5px 0 #a16207;transition:.15s}
+button:hover:not(:disabled){transform:translateY(-2px)}button:disabled{opacity:.4;cursor:not-allowed}
+.sec{background:#fff;color:#1e3a8a;box-shadow:0 5px 0 #9ca3af}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-weight:700;font-size:18px}
+.bar{height:14px;background:#fff3;border-radius:9px;margin:10px 0;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#facc15,#fff);transition:.4s}
+.round{background:#facc15;color:#1e1b4b;border-radius:12px;padding:4px 12px;display:inline-block;font-weight:800}
+.q{font-size:clamp(20px,3.6vw,30px);font-weight:700;margin:14px 0;white-space:pre-line}
+.pic{font-size:clamp(80px,18vw,130px);text-align:center;margin:6px 0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.opts{grid-template-columns:1fr}}
+.opt{background:#fff;color:#1e1b4b;box-shadow:0 5px 0 #9ca3af;text-align:left;font-size:clamp(17px,3vw,24px)}
+.opt.ok{background:#22c55e;color:#fff;box-shadow:0 5px 0 #15803d}
+.opt.no{background:#ef4444;color:#fff;box-shadow:0 5px 0 #991b1b;animation:sh .4s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{margin-top:14px;font-size:20px;min-height:30px}
+.star{position:fixed;top:-30px;font-size:28px;pointer-events:none;animation:fall 1.8s linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+.rank{font-size:clamp(28px,6vw,48px);color:#facc15;text-align:center;font-weight:900}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:20px;margin:12px 0}
+.rev{background:#fff;color:#1e1b4b;border-radius:12px;padding:12px;margin:10px 0;font-size:17px;white-space:pre-line}
+.rev b.g{color:#15803d}.rev b.r{color:#b91c1c}
+</style></head><body><div id="app"></div>
+<script>
+/* ===== DỮ LIỆU: [vòng, câu hỏi, hình, [đáp án ĐÚNG đứng đầu, nhiễu...], giải thích] ===== */
+/* Đáp án đúng luôn ở vị trí đầu; chương trình tự xáo trộn khi chơi. */
+const ROUNDS=["VOCABULARY CHALLENGE","PICTURE QUIZ","WORD MASTER","SENTENCE PATTERNS","GRAMMAR & READING","SUPER CHALLENGE"];
+const HOW=["Chọn nghĩa/từ đúng.","Nhìn hình và chọn từ tiếng Anh phù hợp.","Chọn từ đúng theo ngữ cảnh.","Chọn câu đúng ngữ pháp hoặc câu trả lời phù hợp.","Đọc đoạn văn rồi chọn đáp án.","Câu hỏi tổng hợp – khó hơn!"];
+const WH="What can you see?";
+const Q=[
+[0,'"Celebrate" nghĩa là gì?','',["Kỷ niệm, tổ chức lễ","Chia sẻ","Thiết bị","Giữa kỳ"],"Celebrate = kỷ niệm, tổ chức lễ."],
+[0,'"Kỳ thi tuyển sinh" tiếng Anh là gì?','',["entrance exam","midterm","extra","service"],"Entrance exam = kỳ thi tuyển sinh; midterm = giữa kỳ."],
+[0,'"Equipment" nghĩa là gì?','',["Thiết bị","Cơ sở vật chất","Dịch vụ","Tài nguyên"],"Equipment = thiết bị (đồ dùng, máy móc)."],
+[0,'"Facility" nghĩa là gì?','',["Cơ sở vật chất","Thiết bị","Phòng thí nghiệm","Máy chiếu"],"Facility = cơ sở vật chất (thư viện, sân thể thao...)."],
+[0,'"Phòng thí nghiệm" tiếng Anh là gì?','',["laboratory","projector","facility","resource"],"Laboratory = phòng thí nghiệm."],
+[0,'"Lower secondary school" nghĩa là gì?','',["Trường THCS","Trường tiểu học","Trường tư thục","Trường đại học"],"Lower secondary school = trường trung học cơ sở."],
+[0,'"Midterm" nghĩa là gì?','',["Giữa kỳ","Cuối kỳ","Thêm, bổ sung","Ngoài trời"],"Midterm = giữa kỳ (midterm test)."],
+[0,'"Ngoài trời" tiếng Anh là gì?','',["outdoor","private","royal","extra"],"Outdoor = ngoài trời."],
+[0,'"Resource" nghĩa là gì?','',["Tài nguyên, nguồn tư liệu","Dịch vụ","Chia sẻ","Hoàng gia"],"Resource = tài nguyên, nguồn tư liệu."],
+[0,'"Well-known" nghĩa là gì?','',["Nổi tiếng","Tài năng","Có năng khiếu","Riêng tư"],"Well-known = nổi tiếng (viết có gạch nối)."],
+[1,WH,'🎉',["celebrate","share","extra","midterm"],"Mọi người đang ăn mừng: celebrate."],
+[1,WH,'🔬',["laboratory","service","royal","outdoor"],"Kính hiển vi trong phòng thí nghiệm: laboratory."],
+[1,WH,'📽️',["projector","laboratory","resource","midterm"],"Máy chiếu: projector."],
+[1,WH,'👑',["royal","private","extra","gifted"],"Vương miện: royal (hoàng gia)."],
+[1,WH+' (activity)','🌳⚽',["outdoor","private","midterm","talented"],"Chơi thể thao ngoài trời: outdoor."],
+[1,WH,'🛎️',["service","facility","share","celebrate"],"Chuông gọi phục vụ: service (dịch vụ)."],
+[1,WH,'🚪📝',["entrance exam","projector","celebrate","share"],"Cửa vào + bài thi: entrance exam."],
+[1,WH,'🏫🧒',["lower secondary school","laboratory","service","royal"],"Trường học của học sinh 11–15 tuổi: lower secondary school."],
+[1,WH,'🍰👧👦',["share","celebrate","private","outdoor"],"Hai bạn chia nhau chiếc bánh: share."],
+[1,WH+' (a person with great skill)','🎻🌟',["talented","outdoor","private","projector"],"Người có tài (chơi vĩ cầm giỏi): talented."],
+[2,'Our school has a big ___ with many microscopes.','',["laboratory","service","midterm","royal"],"Kính hiển vi → phòng thí nghiệm."],
+[2,'He is a ___ musician. He plays five instruments very well.','',["talented","private","royal","outdoor"],"Talented = có tài (kỹ năng cụ thể)."],
+[2,'The school has special classes for ___ children who learn much faster than others.','',["gifted","outdoor","extra","midterm"],"Gifted = có năng khiếu/thiên bẩm, học rất nhanh."],
+[2,'Which word has a similar meaning to "famous"?','',["well-known","private","extra","royal"],"Well-known ≈ famous."],
+[2,'Which word is the opposite of "public"?','',["private","outdoor","royal","extra"],"Public (công lập) ↔ private (tư thục)."],
+[2,'The king and queen live in the ___ palace.','',["royal","private","extra","gifted"],"Royal palace = cung điện hoàng gia."],
+[2,'Which sentence is correct?','',["We use a projector in class.","We use a projecter in class.","We use a projektor in class.","We use a proyector in class."],"Viết đúng: projector."],
+[2,'We have ___ classes after school, such as English and art.','',["extra","royal","private","midterm"],"Extra classes = lớp học thêm."],
+[2,'Please ___ your book with your partner.','',["share","celebrate","extra","royal"],"Share sth with sb = chia sẻ."],
+[2,'The school offers a bus ___ for students.','',["service","entrance","laboratory","projector"],"Bus service = dịch vụ xe buýt."],
+[3,'Choose the correct sentence.','',["Our school has a big library.","Our school have a big library.","Our school having a big library.","Our school are a big library."],"Chủ ngữ số ít (school) → has."],
+[3,'There ___ two laboratories in my school.','',["are","is","be","am"],"Two laboratories (số nhiều) → there are."],
+[3,'"What facilities does your school have?"','',["It has a library and a gym.","Yes, it does.","It is very old.","I like it."],"Câu hỏi về cơ sở vật chất → trả lời bằng danh sách."],
+[3,'Choose the correct sentence.','',["My school is very old.","My school are very old.","My school be very old.","My school have very old."],"School số ít → is."],
+[3,'We ___ the school anniversary every year.','',["celebrate","celebrates","celebrating","celebrated is"],"We + động từ nguyên mẫu: celebrate."],
+[3,'She ___ to a private school last year.','',["went","goes","go","going"],"Last year → quá khứ đơn: went."],
+[3,'"Would you like to join the outdoor club?"','',["Yes, I\'d love to.","Yes, I do like.","No, I am not.","It is outdoor."],"Would you like to...? → Yes, I\'d love to."],
+[3,'"How many students are there in your class?"','',["There are forty.","It is forty.","I have forty class.","Yes, there are."],"How many...? → There are + số."],
+[3,'Choose the correct word order.','',["The teacher uses a projector in every lesson.","The teacher a projector uses in every lesson.","Uses the teacher a projector every in lesson.","In every lesson the a projector teacher uses."],"Trật tự: S + V + O + nơi/thời gian."],
+[3,'"Is your school a private school?"','',["No, it isn\'t. It\'s a public school.","No, it doesn\'t.","Yes, it has.","No, I am not."],"Is...? → Yes/No, it is/isn\'t."],
+[4,'Nam studies at Hoa Binh Lower Secondary School. It is a well-known school in Hanoi. It has a large library, two laboratories and a sports ground. Students use projectors in many lessons. Next week, Nam will take his midterm tests.\n\nWhat kind of school is Hoa Binh?','',["A well-known lower secondary school","A private university","A royal school","A primary school"],"Câu 2 của đoạn văn."],
+[4,'(Passage: Hoa Binh school) How many laboratories does the school have?','',["Two","One","Three","Four"],"Two laboratories."],
+[4,'(Passage: Hoa Binh school) What do students use in many lessons?','',["Projectors","Boats","Phones only","Microscopes only"],"Students use projectors in many lessons."],
+[4,'(Passage: Hoa Binh school) What will Nam do next week?','',["Take midterm tests","Take an entrance exam","Celebrate a holiday","Visit a palace"],"Next week, Nam will take his midterm tests."],
+[4,'Linh wants to go to a gifted school. She must pass an entrance exam in June. She studies hard and shares notes with her friends. Her parents celebrate her good marks with a family dinner.\n\nWhat does Linh want?','',["To go to a gifted school","To go to a royal school","To teach a class","To buy equipment"],"Linh wants to go to a gifted school."],
+[4,'(Passage: Linh) When is the entrance exam?','',["In June","In May","Next week","Every day"],"…entrance exam in June."],
+[4,'(Passage: Linh) What does Linh share with her friends?','',["Her notes","Her projector","Her house","Her exam"],"…shares notes with her friends."],
+[4,'(Passage: Linh) How do her parents celebrate her good marks?','',["With a family dinner","With a trip abroad","With a party at school","They do not celebrate"],"…celebrate her good marks with a family dinner."],
+[4,'Our school has good ___ such as a gym and a swimming pool.','',["facilities","equipment","services","resources"],"Gym, pool = cơ sở vật chất (facilities)."],
+[4,'The library is a great ___ for finding information.','',["resource","entrance","outdoor","royal"],"Resource = nguồn tư liệu."],
+[5,'Which sentence is correct?','',["Tom is very talented at drawing.","Tom is very talent at drawing.","Tom is very talenting at drawing.","Tom very talented at drawing."],"Tính từ: talented (be + adj)."],
+[5,'Many students study hard to pass the ___ to enter this school.','',["entrance exam","midterm","extra class","royal"],"Thi vào trường = entrance exam."],
+[5,'The gym has new sports ___ like balls and mats.','',["equipment","facility","service","entrance"],"Balls, mats = thiết bị (equipment, không đếm được)."],
+[5,'A school that parents pay for is a ___ school.','',["private","royal","outdoor","extra"],"Private school = trường tư thục."],
+[5,'My brother is only 10, but he studies maths with 15-year-olds. He is ___.','',["gifted","outdoor","royal","extra"],"Gifted = thiên tài, vượt trội so với tuổi."],
+[5,'Choose the correct sentence.','',["He goes to a lower secondary school.","He go to a lower secondary school.","He going to a lower secondary school.","He is go to a lower secondary school."],"He → goes."],
+[5,'You want to say your school is famous. Which is correct?','',["Our school is well-known for its science club.","Our school is well-knowed for its science club.","Our school is know-well for its science club.","Our school is well know for its science club."],"Well-known = tính từ ghép."],
+[5,'Which word is NOT a school facility?','',["royal","library","laboratory","sports ground"],"Royal (hoàng gia) không phải cơ sở vật chất."],
+[5,'Which sentence is correct?','',["The school provides a free bus service for students.","The school provide a free bus service for students.","The school providing a free bus service students.","The school is provides a free bus service."],"School số ít → provides."],
+[5,'Which sentence is correct?','',["Many outdoor activities are organised as extra classes.","Many outdoor activities is organised as extra classes.","Many outdoors activities are organised as extra classes.","Many outdoor activity are organised as extra classes."],"Activities (số nhiều) → are; tính từ outdoor không thêm s."]
+];
+/* ===== TRẠNG THÁI ===== */
+const $=id=>document.getElementById(id),app=$("app");
+let S,sound=true,actx;
+function beep(f,d,t="sine"){if(!sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+d)}catch(e){}}
+function good(){beep(660,.12);setTimeout(()=>beep(880,.15),120);setTimeout(()=>beep(1100,.2),250)}
+function bad(){beep(180,.35,"sawtooth")}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function fireworks(){for(let i=0;i<24;i++){const s=document.createElement("div");s.className="star";s.textContent=["⭐","✨","🎉","🌟"][i%4];s.style.left=Math.random()*100+"vw";s.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),2500)}}
+function newGame(){S={i:0,score:0,ok:0,no:0,start:Date.now(),ans:Q.map(()=>null),opts:Q.map(q=>shuffle(q[3]))}}
+function home(){newGame();app.innerHTML=`<div class="card"><div class="big">🏆</div><h1>UNIT 6 – ENGLISH CHALLENGE</h1><p class="sub">GRADE 7 – VOCABULARY & SENTENCE PATTERNS</p><p class="sub"><b>${Q.length}</b> questions · 6 rounds · 600 points</p><div class="row"><button onclick="show(0)">▶ START GAME</button><button class="sec" onclick="how()">❓ HOW TO PLAY</button></div></div>`}
+function how(){app.innerHTML=`<div class="card"><h1>HOW TO PLAY</h1><div class="q">• Mỗi câu đúng được 10 điểm, trả lời sai không được điểm.\n• Mỗi câu chỉ được chọn MỘT lần.\n• Bấm NEXT để sang câu tiếp theo, BACK để xem lại câu trước.\n• 6 vòng × 10 câu = 60 câu (tối đa 600 điểm).\n\n${ROUNDS.map((r,i)=>`Round ${i+1} – ${r}: ${HOW[i]}`).join("\n")}</div><div class="row"><button onclick="home()">◀ BACK</button></div></div>`}
+function show(i){S.i=i;const q=Q[i],a=S.ans[i],o=S.opts[i];
+app.innerHTML=`<div class="card"><div class="top"><span>Question ${i+1}/${Q.length}</span><span>⭐ ${S.score}</span><span>✅ ${S.ok} · ❌ ${S.no}</span></div><div class="bar"><i style="width:${i/Q.length*100}%"></i></div>
+<span class="round">ROUND ${q[0]+1}: ${ROUNDS[q[0]]}</span><div class="q">${q[1]}</div>${q[2]?`<div class="pic">${q[2]}</div>`:""}
+<div class="opts">${o.map((t,k)=>{let c="";if(a!==null){if(t===q[3][0])c="ok";else if(k===a)c="no"}return `<button class="opt ${c}" ${a!==null?"disabled":""} onclick="pick(${k})">${"ABCD"[k]}. ${t}</button>`}).join("")}</div>
+<div class="fb" id="fb">${a!==null?fbText(i):""}</div>
+<div class="row"><button class="sec" onclick="${i?`show(${i-1})`:"home()"}">◀ BACK</button><button class="sec" onclick="if(confirm('Chơi lại từ đầu?'))home()">↻ RESTART</button><button class="sec" onclick="sound=!sound;this.textContent=sound?'🔊':'🔇'">${sound?"🔊":"🔇"}</button><button id="nx" ${a===null?"disabled":""} onclick="${i<Q.length-1?`show(${i+1})`:"end()"}">${i<Q.length-1?"NEXT ▶":"FINISH 🏁"}</button></div></div>`}
+function fbText(i){const q=Q[i],t=S.opts[i][S.ans[i]];return t===q[3][0]?`🎉 Chính xác! ${q[4]}`:`❌ Sai rồi. Đáp án đúng: <b>${q[3][0]}</b>. ${q[4]}`}
+function pick(k){if(S.ans[S.i]!==null)return;S.ans[S.i]=k;const q=Q[S.i],right=S.opts[S.i][k]===q[3][0];
+if(right){S.score+=10;S.ok++;good();fireworks()}else{S.no++;bad()}show(S.i)}
+function end(){const t=Math.round((Date.now()-S.start)/1000),m=S.score,pct=Math.round(S.ok/Q.length*100);
+let r=m>=550?["ENGLISH GENIUS","Tuyệt vời! Bạn là thiên tài tiếng Anh! 🌟"]:m>=480?["SUPER STAR","Rất xuất sắc, bạn là ngôi sao lớp học! ⭐"]:m>=390?["EXCELLENT","Làm tốt lắm! Cố thêm chút nữa nhé! 👏"]:m>=300?["GOOD JOB","Khá tốt! Hãy ôn lại các câu sai nhé. 💪"]:["KEEP PRACTISING","Đừng nản! Luyện tập thêm, bạn sẽ tiến bộ. 📚"];
+if(m>=390)fireworks();
+app.innerHTML=`<div class="card"><div class="big">🏅</div><div class="rank">${r[0]}</div><p class="sub">${r[1]}</p><div class="stat"><div>Tổng số câu: ${Q.length}</div><div>Điểm: <b>${m}/600</b></div><div>✅ Đúng: ${S.ok}</div><div>❌ Sai: ${S.no}</div><div>Chính xác: ${pct}%</div><div>⏱ Thời gian: ${Math.floor(t/60)} phút ${t%60} giây</div></div>
+<div class="row"><button onclick="home()">PLAY AGAIN</button><button class="sec" onclick="review()">REVIEW WRONG ANSWERS</button><button class="sec" onclick="key()">VIEW ANSWER KEY</button></div></div>`}
+function review(){const w=Q.map((q,i)=>i).filter(i=>S.ans[i]!==null&&S.opts[i][S.ans[i]]!==Q[i][3][0]);
+app.innerHTML=`<div class="card"><h1>REVIEW WRONG ANSWERS</h1>${w.length?w.map(i=>`<div class="rev"><b>Q${i+1}.</b> ${Q[i][2]} ${Q[i][1]}\n<b class="r">Bạn chọn: ${S.opts[i][S.ans[i]]}</b>\n<b class="g">Đáp án đúng: ${Q[i][3][0]}</b>\n💡 ${Q[i][4]}</div>`).join(""):'<p class="sub">🎉 Bạn không sai câu nào!</p>'}<div class="row"><button onclick="end()">◀ Kết quả</button></div></div>`}
+function key(){app.innerHTML=`<div class="card"><h1>ANSWER KEY</h1>${Q.map((q,i)=>`<div class="rev"><b>Q${i+1}.</b> ${q[2]} ${q[1]}\n<b class="g">→ ${q[3][0]}</b></div>`).join("")}<div class="row"><button onclick="end()">◀ Kết quả</button></div></div>`}
+home();
+</script></body></html>
